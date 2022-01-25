@@ -1,35 +1,37 @@
-import useSwr from 'swr';
-import ProductItem from './../../product-item';
-import ProductsLoading from './loading';
+import useSwr from 'swr'
+import ProductItem from './../../product-item'
+import ProductsLoading from './loading'
+import { connect } from 'react-redux'
 
-const ProductsContent = () => {
-  const fetcher = (url) => fetch(url).then((res) => res.json());
-  const { data, error } = useSwr('/api/products', fetcher);
+const ProductsContent = (props) => {
+  const fetcher = (url) => fetch(url).then((res) => res.json())
+  const { data, error } = useSwr('/api/products', fetcher)
+  const { products } = props
 
-  if (error) return <div>Failed to load users</div>;
+  if (error) return <div>Failed to load users</div>
   return (
     <>
-      {!data && 
-        <ProductsLoading />
-      }
+      {!products && <ProductsLoading />}
 
-      {data &&
+      {products?.docs && (
         <section className="products-list">
-          {data.map(item => (
-            <ProductItem 
-              discount={item.discount} 
+          {products.docs.map((item, index) => (
+            <ProductItem
+              key={index}
+              product={item}
+              discount={item.discount}
               key={item.id}
-              id={item.id} 
+              id={item.id}
               price={item.price}
               currentPrice={item.currentPrice}
-              productImage={item.images[0]} 
+              productImage={item.images?.[0]}
               name={item.name}
             />
           ))}
         </section>
-      }
+      )}
     </>
-  );
-};
-  
-export default ProductsContent
+  )
+}
+
+export default connect((state) => state)(ProductsContent)
